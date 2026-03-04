@@ -5,10 +5,67 @@ function loadData(){
 }
 loadData()
 const dataShow = (id) =>{
+loader(true)
     const url = `https://openapi.programming-hero.com/api/level/${id}`
     fetch(url)
     .then((res) => res.json())
-    .then((data) => dataDisplay(data.data))
+    .then((data) =>{
+        removeBtn()
+        const clickBtn = document.getElementById(`lesson-btn-${id}`)
+        console.log(clickBtn)
+        clickBtn.classList.add('active')
+    dataDisplay(data.data)
+    })
+}
+const sBtn = (btn) =>{
+   const btnElement = btn.map(el => `<span class="btn">${el}</span>`)
+  return btnElement.join(' ')
+}
+const loader = (status) =>{
+    if(status === true){
+        document.getElementById('spinner').classList.remove('hidden');
+        document.getElementById('word-container').classList.add('hidden')
+    }else{
+          document.getElementById('word-container').classList.remove('hidden')
+           document.getElementById('spinner').classList.add('hidden');
+    }
+
+}
+const loadDetail = async (id) => {
+    
+    const url = `https://openapi.programming-hero.com/api/word/${id}`
+    const res = await fetch(url)
+ const detail = await res.json();
+  disDetail(detail.data)
+}
+const disDetail = (w) =>{
+  console.log(w)
+  const detailBox = document.getElementById('detail-container');
+  detailBox.innerHTML = `    <div class="">
+        <h2 class="text-2xl font-bold">${w.word}(<i class="fa-solid fa-microphone-lines"></i>: ${w.pronunciation})</h2>
+        
+    </div>
+    <div class="">
+        <h2 class=" font-bold">Meaning</h2>
+        <p>${w.meaning}</p>
+        
+    </div>
+    <div class="">
+        <h2 class=" font-bold">Example</h2>
+        <p>${w.sentence}</p>
+        
+    </div>
+    <div class="">
+        <h2 class=" font-bold">Synonym</h2>
+        <span >${sBtn(w.synonyms)}</span>
+
+        
+    </div>`
+  document.getElementById('my_modal').showModal();
+}
+const removeBtn = () =>{
+    const btn = document.querySelectorAll('.lesson-btn');
+    btn.forEach(btn => btn.classList.remove('active'))
 }
 // id	5
 // level	1
@@ -26,6 +83,7 @@ const dataDisplay = (words)=>{
             <p>পরবর্তী Lesson Select করুন</p>
           </div>
         `
+        loader(false)
         return;
      }
      words.forEach(word => {
@@ -36,14 +94,14 @@ const dataDisplay = (words)=>{
                <p class="font-semibold">${word.pronunciation ? word.pronunciation : "কোন pronunciation পাওয়া যায় নি"}</p>
                <h3>${word.meaning ? word.meaning :  "কোন অর্থ পাওয়া যায় নি"}</h3>
                <div class="flex justify-between items-center">
-                <button class="btn"><i class="fa-solid fa-info"></i></button>
-                <button class="btn"><i class="fa-solid fa-volume-high"></i></button>
+                <button onclick="loadDetail(${word.id})" class="btn"><i class="fa-solid fa-info"></i></button>
+                <button  class="btn"><i class="fa-solid fa-volume-high"></i></button>
                </div>
             </div>`
 
          wordCon.appendChild(card)
      });
-
+ loader(false)
 }
 
 function dataStream(lessons){
@@ -53,7 +111,7 @@ function dataStream(lessons){
     for(let lesson of lessons){
         const div = document.createElement('div');
         div.innerHTML =`
-           <button onclick="dataShow(${lesson.level_no})" class="btn btn-outline btn-primary">Lesson - ${lesson.level_no}</button>
+           <button id="lesson-btn-${lesson.level_no}" onclick="dataShow(${lesson.level_no})" class="btn btn-outline btn-primary lesson-btn">Lesson - ${lesson.level_no}</button>
         `
            buttonContainer.appendChild(div)
     }
