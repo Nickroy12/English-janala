@@ -103,7 +103,19 @@ const dataDisplay = (words)=>{
      });
  loader(false)
 }
-
+document.getElementById('btn-search').addEventListener('click' , ()=>{
+    const input = document.getElementById('inputValue').value.trim().toLowerCase();
+    console.log(input)
+    fetch('https://openapi.programming-hero.com/api/words/all')
+    .then (res => res.json())
+    .then (data => {
+        const allWord = data.data
+        const filter = allWord.filter(w => w.word.toLowerCase().includes(input))
+        console.log(filter)
+        dataDisplay(filter)
+    })
+    
+})
 function dataStream(lessons){
     const buttonContainer = document.getElementById('btnContainer');
     buttonContainer.innerHTML = ' '
